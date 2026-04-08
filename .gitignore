@@ -1,0 +1,29 @@
+# Java
+*/target/
+*.class
+*.jar
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+go.sum
+
+# Node
+node_modules/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Docker
+*.log
+
+# Env
+.env
+.env.local

@@ -27,5 +27,5 @@ COPY --from=build /home/gradle/project/build/libs/*.jar auth-micro.jar
 # Запуск Spring Boot-приложения
 ENTRYPOINT ["java", "-jar", "auth-micro.jar"]
 
-EXPOSE 8080
+EXPOSE 8081
 EXPOSE 9090

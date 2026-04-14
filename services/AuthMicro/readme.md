@@ -65,9 +65,7 @@ API: /auth/v1/registration
 input:
 ```
 {
-  "email": "user108@mail.ru",
-  "acceptedPrivacyPolicy": true,
-  "acceptedPersonalDataProcessing": true
+  "email": "user108@mail.ru"
 }
 ```
 

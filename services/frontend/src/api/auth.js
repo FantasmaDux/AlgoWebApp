@@ -3,7 +3,7 @@ import axios from 'axios'
 const API_GATEWAY = 'http://localhost:8080'
 
 const api = axios.create({
-  baseURL: API_GATEWAY,
+  baseURL: '',  // пустая строка — запросы на тот же хост
 })
 
 // Добавляем токен к каждому запросу

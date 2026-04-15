@@ -1,0 +1,79 @@
+services:
+  auth-db-postgres:
+    container_name: auth-db-postgres
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secure_auth_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - auth-db-postgres:/var/lib/postgresql/data
+    networks:
+      - algo-network
+
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ../services/AuthMicro
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+      - "9090:9090"
+    env_file:
+      - ../services/AuthMicro/.env
+    environment:
+      POSTGRES_DB_HOST: auth-db-postgres
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secure_auth_password
+      POSTGRES_DB_INTERNAL_PORT: 5432
+      AUTH_HTTP: 8081
+      JWT_SECRET: rZvFZnkPmXr8Cd4FB9qp7bTMEnsvzKRJlOcp1piMHtA=
+      ACCESS_TOKEN_LIFETIME: 900000
+      REFRESH_TOKEN_LIFETIME: 604800000
+    depends_on:
+      auth-db-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - algo-network
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../services/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-service
+    restart: unless-stopped
+    networks:
+      - algo-network
+
+  gateway:
+    image: nginx:stable-alpine
+    container_name: gateway
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - auth-service
+      - frontend
+    networks:
+      - algo-network
+
+volumes:
+  auth-db-postgres:
+
+networks:
+  algo-network:
+    driver: bridge

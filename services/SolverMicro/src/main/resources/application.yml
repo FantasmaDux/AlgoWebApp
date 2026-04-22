@@ -1,0 +1,87 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_DB_HOST}:${POSTGRES_DB_INTERNAL_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:session-schema.sql
+
+  session:
+    store-type: jdbc
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  mail:
+    host: smtp.mail.ru
+    port: 465
+    username: ${ENV_USERNAME}
+    password: ${ENV_PASSWORD}
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+          ssl:
+            enable: true
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - debug
+          - env
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    io.jsonwebtoken: DEBUG
+    io.github.fantasmadux.authmicro: DEBUG
+
+server:
+  port: ${AUTH_HTTP}
+
+jwt:
+  access-token:
+    lifetime: ${ACCESS_TOKEN_LIFETIME}
+  refresh-token:
+    lifetime: ${REFRESH_TOKEN_LIFETIME}
+  secret: ${JWT_SECRET}
+
+code:
+  lifetime:
+    minutes: ${CODE_LIFETIME_MINUTES}
+
+CODE_PATTERN: ${ACTUAL_CODE_PATTERN}
+
+springdoc:
+  swagger-ui:
+    path: /auth/swagger-ui.html
+  api-docs:
+    path: /auth/v3/api-docs
+
+SWAGGER_API_VERSION_AUTH: ${ENV_SWAGGER_API_VERSION_AUTH}
+SWAGGER_APP_DESCRIPTION_AUTH: ${ENV_SWAGGER_APP_DESCRIPTION_AUTH}
+SWAGGER_LICENSE: ${ENV_SWAGGER_LICENSE}
+SWAGGER_LICENSE_URL: ${ENV_SWAGGER_LICENSE_URL}
+SWAGGER_DEV_SERVER_AUTH: ${ENV_SWAGGER_DEV_SERVER_AUTH}

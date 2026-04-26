@@ -2,67 +2,50 @@ package org.example.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Profile("!test")
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         return http
-                .csrf(csrf -> csrf.disable()) // <--- ОТКЛЮЧАЕТ CSRF
-                .authorizeHttpRequests(
-                        auth -> auth
-                                .requestMatchers("/auth/v1/registration").permitAll()
-                                .requestMatchers("/auth/v1/registration/confirmEmail").permitAll()
-                                .requestMatchers("/auth/v1/login/sendCodeEmail").permitAll()
-                                .requestMatchers("/auth/v1/login/confirmEmail").permitAll()
-                                .requestMatchers("/actuator/**").permitAll()
-                                .requestMatchers("/auth/v1/refreshToken").permitAll()
-                                .requestMatchers(
-                                        "/auth/swagger-ui/**",
-                                        "/auth/v3/api-docs/**",
-                                        "/auth/swagger-ui.html"
-                                ).permitAll()
-                                .anyRequest().authenticated()
-                ).sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-//                .httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer(
-                        resourceServer -> resourceServer.jwt(
-                                jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(
-                                        jwtAuthConverter()
-
-                                )
+                .authorizeHttpRequests(auth -> auth
+                        // Публичные эндпоинты (если есть)
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/solver/v1/public/**").permitAll()
+                        // Swagger
+                        .requestMatchers(
+                                "/solver/swagger-ui/**",
+                                "/solver/v3/api-docs/**",
+                                "/solver/swagger-ui.html"
+                        ).permitAll()
+                        // Всё остальное требует аутентификации
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(jwtAuthConverter())
                         )
                 )
                 .build();
     }
 
     private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthConverter() {
-        var converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(
-                new AuthoritiseConverter()
-        );
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(new AuthoritiseConverter());
         return converter;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

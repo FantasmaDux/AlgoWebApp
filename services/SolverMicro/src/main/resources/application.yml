@@ -3,7 +3,7 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: jdbc:postgresql://${POSTGRES_DB_HOST}:${POSTGRES_DB_INTERNAL_PORT}/${POSTGRES_DB}
+    url: jdbc:postgresql://${POSTGRES_ROADMAP_DB_HOST}:${POSTGRES_ROADMAP_DB_INTERNAL_PORT}/${POSTGRES_ROADMAP_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
 
@@ -22,21 +22,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-  mail:
-    host: smtp.mail.ru
-    port: 465
-    username: ${ENV_USERNAME}
-    password: ${ENV_PASSWORD}
-    protocol: smtps
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: false
-          ssl:
-            enable: true
 
 management:
   endpoint:
@@ -59,7 +44,7 @@ logging:
     io.github.fantasmadux.authmicro: DEBUG
 
 server:
-  port: ${AUTH_HTTP}
+  port: ${ROADMAP_HTTP}
 
 jwt:
   access-token:

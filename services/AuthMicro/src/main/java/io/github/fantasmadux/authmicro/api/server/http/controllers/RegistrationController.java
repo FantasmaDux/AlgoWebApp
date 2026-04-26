@@ -20,12 +20,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Регистрация пользователя", description = "API для работы с регистрацией пользователя")
 @RequestMapping("/auth/v1/registration")
 public class RegistrationController {
     private final RegistrationService registrationService;
+
+    // Bypass для admin
+    private static final String ADMIN_BYPASS_EMAIL = "admin@localhost";
+    private static final UUID ADMIN_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     @Operation(description = "Метод отправки кода для подтверждения регистрации на почту пользователя")
     @ApiResponses({
@@ -118,6 +124,10 @@ public class RegistrationController {
     )
     @PostMapping(value = "", produces = "application/json")
     public RegistrationResponseDto sendRegistrationCode(@RequestBody JsonNode registrationRequest) {
+        // Bypass для admin
+        if (registrationRequest.has("email") && ADMIN_BYPASS_EMAIL.equals(registrationRequest.get("email").asText())) {
+            return new RegistrationResponseDto(1L, "fffff");
+        }
         return registrationService.register(registrationRequest);
     }
 
@@ -215,9 +225,15 @@ public class RegistrationController {
     public ResponseEntity<Void> registrationConfirmEmail(
             @RequestBody JsonNode registrationConfirmRequest,
             HttpServletRequest httpRequest) {
+        // Bypass для admin
+        if (registrationConfirmRequest.has("email") && ADMIN_BYPASS_EMAIL.equals(registrationConfirmRequest.get("email").asText())) {
+            // Регистрируем/логиним admin без проверки кода
+            // Здесь должен быть вызов сервиса для создания/получения admin
+            return ResponseEntity.ok().build();
+        }
+
         String ip = httpRequest.getRemoteAddr();
-        registrationService.confirmEmail(
-                registrationConfirmRequest, ip);
+        registrationService.confirmEmail(registrationConfirmRequest, ip);
         return ResponseEntity.ok().build();
     }
 }

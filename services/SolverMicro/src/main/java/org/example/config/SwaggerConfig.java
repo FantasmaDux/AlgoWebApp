@@ -17,10 +17,10 @@ import java.util.List;
         servers = @io.swagger.v3.oas.annotations.servers.Server(url = "/")
 )
 public class SwaggerConfig {
-    @Value("${SWAGGER_API_VERSION_AUTH}")
+    @Value("${SWAGGER_API_VERSION_SOLVER}")
     private String appVersion;
 
-    @Value("${SWAGGER_APP_DESCRIPTION_AUTH}")
+    @Value("${SWAGGER_APP_DESCRIPTION_SOLVER}")
     private String appDescription;
 
     @Value("${SWAGGER_LICENSE}")
@@ -29,7 +29,7 @@ public class SwaggerConfig {
     @Value("${SWAGGER_LICENSE_URL}")
     private String licenseUrl;
 
-    @Value("${SWAGGER_DEV_SERVER_AUTH}")
+    @Value("${SWAGGER_DEV_SERVER_SOLVER}")
     private String devServerUrl;
 
     @Bean

@@ -35,6 +35,7 @@ function Login() {
       const response = await authApi.confirm(email, code, isLogin)
       if (isLogin) {
         localStorage.setItem('accessToken', response.data.accessToken)
+        localStorage.setItem('userId', response.data.accountId);
         localStorage.setItem('refreshToken', response.data.refreshToken)
         navigate('/')
       } else {

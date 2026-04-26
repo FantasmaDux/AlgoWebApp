@@ -6,14 +6,13 @@ spring:
     url: jdbc:postgresql://${POSTGRES_ROADMAP_DB_HOST}:${POSTGRES_ROADMAP_DB_INTERNAL_PORT}/${POSTGRES_ROADMAP_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.session.SessionAutoConfiguration
 
   sql:
     init:
       mode: always
-      schema-locations: classpath:session-schema.sql
-
-  session:
-    store-type: jdbc
 
   jpa:
     hibernate:
@@ -22,6 +21,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 management:
   endpoint:
@@ -41,7 +41,6 @@ logging:
     root: INFO
     org.springframework.security: DEBUG
     io.jsonwebtoken: DEBUG
-    io.github.fantasmadux.authmicro: DEBUG
 
 server:
   port: ${ROADMAP_HTTP}
@@ -53,20 +52,16 @@ jwt:
     lifetime: ${REFRESH_TOKEN_LIFETIME}
   secret: ${JWT_SECRET}
 
-code:
-  lifetime:
-    minutes: ${CODE_LIFETIME_MINUTES}
-
 CODE_PATTERN: ${ACTUAL_CODE_PATTERN}
 
 springdoc:
   swagger-ui:
-    path: /auth/swagger-ui.html
+    path: /solver/swagger-ui.html
   api-docs:
-    path: /auth/v3/api-docs
+    path: /solver/v3/api-docs
 
-SWAGGER_API_VERSION_AUTH: ${ENV_SWAGGER_API_VERSION_AUTH}
-SWAGGER_APP_DESCRIPTION_AUTH: ${ENV_SWAGGER_APP_DESCRIPTION_AUTH}
+SWAGGER_API_VERSION_SOLVER: ${ENV_SWAGGER_API_VERSION_SOLVER}
+SWAGGER_APP_DESCRIPTION_SOLVER: ${ENV_SWAGGER_APP_DESCRIPTION_SOLVER}
 SWAGGER_LICENSE: ${ENV_SWAGGER_LICENSE}
 SWAGGER_LICENSE_URL: ${ENV_SWAGGER_LICENSE_URL}
-SWAGGER_DEV_SERVER_AUTH: ${ENV_SWAGGER_DEV_SERVER_AUTH}
+SWAGGER_DEV_SERVER_SOLVER: ${ENV_SWAGGER_DEV_SERVER_SOLVER}

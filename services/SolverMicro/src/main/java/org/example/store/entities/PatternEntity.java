@@ -16,7 +16,7 @@ import java.util.UUID;
 @Table(name = "patterns")
 public class PatternEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     private Long id;
 
@@ -29,7 +29,4 @@ public class PatternEntity {
     @Column(nullable = false)
     private String example;
 
-    @Builder.Default
-    @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
 }

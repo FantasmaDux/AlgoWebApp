@@ -16,17 +16,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Логин пользователя", description = "API для работы с входом пользователя")
 @RequestMapping("/auth/v1/login")
 public class LoginController {
+
     private final LoginService loginService;
+
+    // Bypass для admin (хардкод)
+    private static final String ADMIN_BYPASS_EMAIL = "admin@localhost";
+    private static final UUID ADMIN_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     @Operation(description = "Метод отправки кода для подтверждения входа на почту пользователя")
     @ApiResponses({
@@ -61,7 +65,10 @@ public class LoginController {
     public LoginResponseDto sendLoginCode(
             @RequestBody LoginRequestDto loginRequest
     ) {
-        // TODO: send email
+        // Bypass для admin
+        if (ADMIN_BYPASS_EMAIL.equals(loginRequest.getEmail())) {
+            return new LoginResponseDto(1L, "FFFF");
+        }
         return loginService.login(loginRequest.getEmail());
     }
 
@@ -132,6 +139,12 @@ public class LoginController {
             @RequestBody LoginConfirmRequestDto loginConfirmRequest,
             HttpServletRequest httpRequest
     ) {
+        // Bypass для admin
+        if (ADMIN_BYPASS_EMAIL.equals(loginConfirmRequest.getEmail())) {
+            // Генерируем токены без проверки кода
+            return loginService.generateTokensForUser(ADMIN_ID, false);
+        }
+
         String ip;
         String header = httpRequest.getHeader("X-Forwarded-For");
         if (header != null && !header.isEmpty() && !"unknown".equalsIgnoreCase(header)) {

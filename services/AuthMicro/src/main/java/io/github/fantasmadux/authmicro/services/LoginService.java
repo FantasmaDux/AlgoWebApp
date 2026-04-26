@@ -224,4 +224,22 @@ public class LoginService {
 
         return new LoginResponseDto(fakeCodeExpires, codeGenerator.getCodePattern());
     }
+
+    public LoginConfirmResponseDto generateTokensForUser(UUID userId, boolean isAdmin) {
+        Map<String, Object> tokens = generateTokens(userId, isAdmin);
+
+        // Сохраняем refresh токен в БД (опционально, через RefreshTokenService)
+        String refreshToken = (String) tokens.get("refreshToken");
+        long refreshTokenExpires = (long) tokens.get("refreshTokenExpires");
+
+        // Здесь можно сохранить refresh токен, если нужно
+        // refreshTokenService.saveRefreshToken(userId, refreshToken, new Timestamp(refreshTokenExpires));
+
+        return LoginConfirmResponseDto.builder()
+                .accessToken((String) tokens.get("accessToken"))
+                .refreshToken((String) tokens.get("refreshToken"))
+                .accessTokenExpires((long) tokens.get("accessTokenExpires"))
+                .refreshTokenExpires((long) tokens.get("refreshTokenExpires"))
+                .build();
+    }
 }

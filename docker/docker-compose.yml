@@ -45,6 +45,62 @@ services:
     networks:
       - algo-network
 
+  
+
+  roadmap-db-postgres:
+    container_name: roadmap-db-postgres
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: roadmap_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secure_roadmap_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d roadmap_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - roadmap-db-postgres:/var/lib/postgresql/data
+      - ./task_schema.sql:/docker-entrypoint-initdb.d/task_schema.sql
+    networks:
+      - algo-network  
+
+  solver-service:
+    container_name: solver-service
+    build:
+      context: ../services/SolverMicro  # путь к папке с solver-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    env_file:
+      - ../services/SolverMicro/.env
+    environment:
+      # Переопределяем переменные для Docker (если нужно)
+      POSTGRES_ROADMAP_DB_HOST: roadmap-db-postgres
+      POSTGRES_ROADMAP_DB: roadmap_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secure_roadmap_password
+      POSTGRES_ROADMAP_DB_INTERNAL_PORT: 5432
+      ROADMAP_HTTP: 8083
+      # JWT (должен совпадать с auth-service)
+      JWT_SECRET: rZvFZnkPmXr8Cd4FB9qp7bTMEnsvzKRJlOcp1piMHtA=
+      ACCESS_TOKEN_LIFETIME: 900000
+      REFRESH_TOKEN_LIFETIME: 604800000
+    depends_on:
+      roadmap-db-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - algo-network
+    # Дополнительные настройки для компиляции Java кода
+    tmpfs:
+      - /tmp/solver  # для временных файлов компиляции
+
+
+
+
   frontend:
     container_name: frontend
     build:
@@ -68,12 +124,15 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - auth-service
+      - solver-service
       - frontend
     networks:
       - algo-network
 
 volumes:
   auth-db-postgres:
+  roadmap-db-postgres:
+
 
 networks:
   algo-network:

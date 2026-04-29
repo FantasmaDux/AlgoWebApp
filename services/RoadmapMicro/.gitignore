@@ -1,0 +1,28 @@
+# Local environment variables / secrets
+.env
+.env.local
+.env.*.local
+
+# JetBrains / GoLand
+.idea/
+*.iml
+
+# Go build artifacts
+bin/
+build/
+dist/
+tmp/
+*.exe
+*.test
+*.out
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

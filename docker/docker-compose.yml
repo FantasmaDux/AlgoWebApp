@@ -98,6 +98,35 @@ services:
     tmpfs:
       - /tmp/solver  # для временных файлов компиляции
 
+  roadmap-service:
+    container_name: roadmap-service
+    build:
+      context: ../services/RoadmapMicro  # путь к папке
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    env_file:
+      - ../services/RoadmapMicro/.env
+    environment:
+      # Переопределяем переменные для Docker (если нужно)
+      POSTGRES_ROADMAP_DB_HOST: roadmap-db-postgres
+      POSTGRES_ROADMAP_DB: roadmap_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secure_roadmap_password
+      POSTGRES_ROADMAP_DB_INTERNAL_PORT: 5432
+      ROADMAP_HTTP: 8082
+      # JWT (должен совпадать с auth-service)
+      JWT_SECRET: rZvFZnkPmXr8Cd4FB9qp7bTMEnsvzKRJlOcp1piMHtA=
+      ACCESS_TOKEN_LIFETIME: 900000
+      REFRESH_TOKEN_LIFETIME: 604800000
+    depends_on:
+      roadmap-db-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - algo-network
+    tmpfs:
+      - /tmp/roadmap  # для временных файлов компиляции
 
 
 
